@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Data Kriteria{% endblock %}
+{% block page_title %}Data Kriteria & Bobot{% endblock %}
+
+{% block content %}
+<!-- Bobot Kriteria Utama -->
+<div class="content-card">
+    <div class="card-header">
+        <i class="fas fa-layer-group"></i>
+        <h3>Bobot Kriteria Utama</h3>
+    </div>
+    
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Kriteria</th>
+                    <th>Bobot</th>
+                    <th>Persentase</th>
+                    <th>Prioritas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for kriteria, bobot in ahp_results.kriteria.items() %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td><strong>{{ kriteria }}</strong></td>
+                    <td>{{ '%.6f'|format(bobot) }}</td>
+                    <td>{{ '%.2f'|format(bobot * 100) }}%</td>
+                    <td>
+                        <div style="width: 100%; background: #e9ecef; border-radius: 4px; height: 20px;">
+                            <div style="width: {{ bobot * 100 }}%; background: linear-gradient(90deg, var(--primary-blue), var(--info-cyan)); border-radius: 4px; height: 100%;"></div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Bobot Global Sub-Kriteria -->
+<div class="content-card">
+    <div class="card-header">
+        <i class="fas fa-sitemap"></i>
+        <h3>Bobot Global Sub-Kriteria</h3>
+    </div>
+    
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Sub-Kriteria</th>
+                    <th>Kategori</th>
+                    <th>Bobot Global</th>
+                    <th>Persentase</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set profitabilitas = ["ROA", "Tingkat Laba Operasional"] %}
+                {% set likuiditas = ["Rasio Lancar", "Rasio Cepat"] %}
+                {% set solvabilitas = ["Total Utang/Total Nilai Bersih", "Rasio Utang", "Nilai Bersih/Aset"] %}
+                {% set efisiensi = ["Tingkat Arus Kas", "Arus Kas terhadap Liabilitas", "Perputaran Total Aset"] %}
+                
+                {% set counter = [0] %}
+                {% for sub, bobot in ahp_results.bobot_global.items() %}
+                    {% if counter.append(counter.pop() + 1) %}{% endif %}
+                    <tr>
+                        <td>{{ counter[0] }}</td>
+                        <td>{{ sub }}</td>
+                        <td>
+                            {% if sub in profitabilitas %}
+                                <span class="badge" style="background: #e7f3ff; color: var(--primary-blue);">Profitabilitas</span>
+                            {% elif sub in likuiditas %}
+                                <span class="badge" style="background: #d1e7dd; color: var(--success-green);">Likuiditas</span>
+                            {% elif sub in solvabilitas %}
+                                <span class="badge" style="background: #fff3cd; color: var(--warning-orange);">Solvabilitas</span>
+                            {% elif sub in efisiensi %}
+                                <span class="badge" style="background: #d1ecf1; color: var(--info-cyan);">Efisiensi</span>
+                            {% endif %}
+                        </td>
+                        <td><strong>{{ '%.8f'|format(bobot) }}</strong></td>
+                        <td>{{ '%.4f'|format(bobot * 100) }}%</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Bobot Rating -->
+<div class="content-card">
+    <div class="card-header">
+        <i class="fas fa-star"></i>
+        <h3>Bobot Rating Penilaian</h3>
+    </div>
+    
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Rating</th>
+                    <th>Keterangan</th>
+                    <th>Bobot</th>
+                    <th>Persentase</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set keterangan = {"BS": "Baik Sekali", "B": "Baik", "C": "Cukup", "K": "Kurang"} %}
+                {% for rating, bobot in ahp_results.bobot_rating.items() %}
+                <tr>
+                    <td><strong>{{ rating }}</strong></td>
+                    <td>{{ keterangan[rating] }}</td>
+                    <td>{{ '%.6f'|format(bobot) }}</td>
+                    <td>{{ '%.2f'|format(bobot * 100) }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="alert alert-info" style="margin-top: 20px;">
+        <i class="fas fa-info-circle"></i>
+        <span>Rating ditentukan berdasarkan kuartil data: <strong>Q3 = BS</strong>, <strong>Q2-Q3 = B</strong>, <strong>Q1-Q2 = C</strong>, <strong>&lt;Q1 = K</strong></span>
+    </div>
+</div>
+
+<!-- Matriks Perbandingan Kriteria -->
+<div class="content-card">
+    <div class="card-header">
+        <i class="fas fa-table"></i>
+        <h3>Matriks Perbandingan Berpasangan Kriteria</h3>
+    </div>
+    
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Kriteria</th>
+                    {% for k in matrices.kriteria[1] %}
+                    <th>{{ k }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(matrices.kriteria[0]|length) %}
+                <tr>
+                    <td><strong>{{ matrices.kriteria[1][i] }}</strong></td>
+                    {% for j in range(matrices.kriteria[0][i]|length) %}
+                    <td>{{ '%.3f'|format(matrices.kriteria[0][i][j]) }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+        <h4 style="margin-bottom: 10px;">
+            <i class="fas fa-check-circle"></i> Consistency Ratio (CR)
+        </h4>
+        <div style="display: flex; gap: 30px; align-items: center;">
+            <div>
+                <span style="font-size: 14px; color: var(--text-secondary);">CR Value:</span>
+                <strong style="font-size: 24px; color: var(--primary-blue); margin-left: 10px;">
+                    {{ '%.4f'|format(ahp_results.cr) }}
+                </strong>
+            </div>
+            <div>
+                {% if ahp_results.cr < 0.1 %}
+                    <span class="badge badge-success" style="font-size: 14px; padding: 10px 20px;">
+                        ✓ Konsisten (CR &lt; 0.1)
+                    </span>
+                {% else %}
+                    <span class="badge badge-danger" style="font-size: 14px; padding: 10px 20px;">
+                        ✗ Tidak Konsisten (CR ≥ 0.1)
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Info Skala Perbandingan -->
+<div class="content-card">
+    <div class="card-header">
+        <i class="fas fa-info-circle"></i>
+        <h3>Skala Perbandingan AHP (Saaty)</h3>
+    </div>
+    
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Intensitas</th>
+                    <th>Definisi</th>
+                    <th>Penjelasan</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>1</strong></td>
+                    <td>Sama Penting</td>
+                    <td>Kedua elemen sama pentingnya</td>
+                </tr>
+                <tr>
+                    <td><strong>3</strong></td>
+                    <td>Sedikit Lebih Penting</td>
+                    <td>Elemen yang satu sedikit lebih penting dari yang lain</td>
+                </tr>
+                <tr>
+                    <td><strong>5</strong></td>
+                    <td>Lebih Penting</td>
+                    <td>Elemen yang satu lebih penting dari yang lain</td>
+                </tr>
+                <tr>
+                    <td><strong>7</strong></td>
+                    <td>Sangat Lebih Penting</td>
+                    <td>Elemen yang satu sangat lebih penting dari yang lain</td>
+                </tr>
+                <tr>
+                    <td><strong>9</strong></td>
+                    <td>Mutlak Lebih Penting</td>
+                    <td>Elemen yang satu mutlak lebih penting dari yang lain</td>
+                </tr>
+                <tr>
+                    <td><strong>2,4,6,8</strong></td>
+                    <td>Nilai Tengah</td>
+                    <td>Nilai di antara dua penilaian yang berdekatan</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card blue">
+        <div class="stat-content">
+            <div class="stat-info">
+                <h3>Jumlah Perusahaan</h3>
+                <div class="stat-value">{{ total_perusahaan }}</div>
+                <div class="stat-label">Perusahaan Terdaftar</div>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-building"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card green">
+        <div class="stat-content">
+            <div class="stat-info">
+                <h3>Jumlah Kriteria</h3>
+                <div class="stat-value">{{ total_kriteria }}</div>
+                <div class="stat-label">Kriteria Penilaian</div>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-list"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card cyan">
+        <div class="stat-content">
+            <div class="stat-info">
+                <h3>Status Analisis</h3>
+                <div class="stat-value">{{ status_analisis }}</div>
+                <div class="stat-label">Status Perhitungan</div>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card orange">
+        <div class="stat-content">
+            <div class="stat-info">
+                <h3>CR Value</h3>
+                <div class="stat-value">{{ '%.3f'|format(cr_value) if cr_value else 'N/A' }}</div>
+                <div class="stat-label">Consistency Ratio</div>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-balance-scale"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top 5 Perusahaan Terbaik -->
+<div class="content-card">
+    <div class="card-header">
+        <i class="fas fa-trophy"></i>
+        <h3>Top 5 Perusahaan Terbaik</h3>
+    </div>
+
+    {% if top_perusahaan and top_perusahaan|length > 0 %}
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ranking</th>
+                    <th>Kode Perusahaan</th>
+                    <th>Nama Perusahaan</th>
+                    <th>Skor Preferensi</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for perusahaan in top_perusahaan[:5] %}
+                <tr>
+                    <td><strong>#{{ loop.index }}</strong></td>
+                    <td>{{ perusahaan.kode }}</td>
+                    <td>{{ perusahaan.nama }}</td>
+                    <td><strong>{{ '%.4f'|format(perusahaan.skor) }}</strong></td>
+                    <td>
+                        {% if perusahaan.skor >= 0.7 %}
+                            <span class="badge badge-success">Sangat Baik</span>
+                        {% elif perusahaan.skor >= 0.5 %}
+                            <span class="badge badge-info">Baik</span>
+                        {% elif perusahaan.skor >= 0.3 %}
+                            <span class="badge badge-warning">Cukup</span>
+                        {% else %}
+                            <span class="badge badge-danger">Perlu Perhatian</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        <span>Belum ada hasil perhitungan. Silakan lakukan perhitungan AHP dan TOPSIS terlebih dahulu.</span>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Quick Actions -->
+<div class="content-card">
+    <div class="card-header">
+        <i class="fas fa-bolt"></i>
+        <h3>Quick Actions</h3>
+    </div>
+    
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <a href="{{ url_for('data_perusahaan') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Tambah Data Perusahaan
+        </a>
+        
+        <a href="{{ url_for('proses_ahp') }}" class="btn btn-success">
+            <i class="fas fa-calculator"></i>
+            Proses AHP
+        </a>
+        
+        <a href="{{ url_for('proses_topsis') }}" class="btn btn-warning">
+            <i class="fas fa-chart-bar"></i>
+            Proses TOPSIS
+        </a>
+        
+        <a href="{{ url_for('hasil_akhir') }}" class="btn btn-primary">
+            <i class="fas fa-trophy"></i>
+            Lihat Hasil Akhir
+        </a>
+    </div>
+</div>
+
+<!-- Info Card -->
+<div class="content-card">
+    <div class="card-header">
+        <i class="fas fa-info-circle"></i>
+        <h3>Tentang Sistem</h3>
+    </div>
+    
+    <p style="line-height: 1.8; color: var(--text-secondary);">
+        <strong>Sistem Pemeringkatan Kinerja Keuangan Perusahaan Manufaktur</strong> menggunakan metode integrasi 
+        <strong>AHP (Analytical Hierarchy Process)</strong> dan <strong>TOPSIS (Technique for Order Preference by Similarity to Ideal Solution)</strong> 
+        untuk melakukan deteksi dini kebangkrutan perusahaan manufaktur.
+    </p>
+    
+    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid var(--primary-blue);">
+        <h4 style="margin-bottom: 10px; color: var(--text-primary);">
+            <i class="fas fa-lightbulb"></i> Alur Kerja Sistem:
+        </h4>
+        <ol style="margin-left: 20px; line-height: 2;">
+            <li>Input data perusahaan dan kriteria penilaian</li>
+            <li>Proses AHP untuk menghitung bobot kriteria</li>
+            <li>Proses TOPSIS untuk perangkingan perusahaan</li>
+            <li>Analisis hasil dan deteksi dini kebangkrutan</li>
+        </ol>
+    </div>
+</div>
+{% endblock %}

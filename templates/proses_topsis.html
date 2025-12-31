@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block title %}Proses TOPSIS{% endblock %}
+{% block page_title %}Proses TOPSIS (Technique for Order Preference by Similarity to Ideal Solution){% endblock %}
+
+{% block content %}
+<!-- Info TOPSIS -->
+<div class="alert alert-info">
+    <i class="fas fa-info-circle"></i>
+    <span>
+        <strong>TOPSIS</strong> adalah metode untuk menentukan peringkat alternatif berdasarkan kedekatan dengan solusi ideal positif 
+        dan jarak dari solusi ideal negatif. Bobot yang digunakan berasal dari hasil perhitungan AHP.
+    </span>
+</div>
+
+<!-- Hasil Ranking -->
+<div class="content-card">
+    <div class="card-header">
+        <i class="fas fa-trophy"></i>
+        <h3>Hasil Perangkingan TOPSIS</h3>
+    </div>
+    
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ranking</th>
+                    <th>Kode</th>
+                    <th>Nama Perusahaan</th>
+                    <th>Skor AHP</th>
+                    <th>Skor TOPSIS</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in hasil_list %}
+                <tr>
+                    <td>
+                        <strong style="font-size: 18px; color: 
+                            {% if data.Rank_TOPSIS == 1 %}#FFD700
+                            {% elif data.Rank_TOPSIS == 2 %}#C0C0C0
+                            {% elif data.Rank_TOPSIS == 3 %}#CD7F32
+                            {% else %}var(--text-primary){% endif %}">
+                            #{{ data.Rank_TOPSIS }}
+                        </strong>
+                    </td>
+                    <td><strong>{{ data.kode }}</strong></td>
+                    <td>{{ data.nama }}</td>
+                    <td>{{ '%.6f'|format(data.Skor_AHP_final) }}</td>
+                    <td><strong>{{ '%.6f'|format(data.Skor_TOPSIS) }}</strong></td>
+                    <td>
+                        {% if data.Status == 'Sangat Baik' %}
+                            <span class="badge badge-success">{{ data.Status }}</span>
+                        {% elif data.Status == 'Baik' %}
+                            <span class="badge badge-info">{{ data.Status }}</span>
+                        {% elif data.Status == 'Cukup' %}
+                            <span class="badge badge-warning">{{ data.Status }}</span>
+                        {% else %}
+                            <span class="badge badge-danger">{{ data.Status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+<!-- Detail Perhitungan TOPSIS -->
+<div class="content-card">
+    <div class="card-header">
+        <i class="fas fa-calculator"></i>
+        <h3>Detail Perhitungan TOPSIS</h3>
+    </div>
+    
+    <!-- Step 1: Matriks Keputusan -->
+    <div style="margin-bottom: 30px;">
+        <h4 style="color: var(--primary-blue); margin-bottom: 15px;">
+            <i class="fas fa-table"></i> Step 1: Matriks Keputusan
+        </h4>
+        <p style="color: var(--text-secondary); margin-bottom: 15px;">
+            Matriks keputusan berisi nilai asli dari setiap sub-kriteria untuk semua perusahaan.
+        </p>
+        <div class="table-responsive">
+            <table style="font-size: 12px;">
+                <thead>
+                    <tr>
+                        <th>Perusahaan</th>
+                        <th>ROA</th>
+                        <th>Laba Op.</th>
+                        <th>R. Lancar</th>
+                        <th>R. Cepat</th>
+                        <th>Utang/NB</th>
+                        <th>R. Utang</th>
+                        <th>NB/Aset</th>
+                        <th>A. Kas</th>
+                        <th>AK/Liab</th>
+                        <th>Put. Aset</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in hasil_list[:5] %}
+                    <tr>
+                        <td><strong>{{ data.kode }}</strong></td>
+                        <td>{{ '%.4f'|format(data.ROA) }}</td>
+                        <td>{{ '%.4f'|format(data['Tingkat Laba Operasional']) }}</td>
+                        <td>{{ '%.4f'|format(data['Rasio Lancar']) }}</td>
+                        <td>{{ '%.4f'|format(data['Rasio Cepat']) }}</td>
+                        <td>{{ '%.4f'|format(data['Total Utang/Total Nilai Bersih']) }}</td>
+                        <td>{{ '%.4f'|format(data['Rasio Utang']) }}</td>
+                        <td>{{ '%.4f'|format(data['Nilai Bersih/Aset']) }}</td>
+                        <td>{{ '%.4f'|format(data['Tingkat Arus Kas']) }}</td>
+                        <td>{{ '%.4f'|format(data['Arus Kas terhadap Liabilitas']) }}</td>
+                        <td>{{ '%.4f'|format(data['Perputaran Total Aset']) }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if hasil_list|length > 5 %}
+                    <tr>
+                        <td colspan="11" style="text-align: center; color: var(--text-secondary);">
+                            <em>... dan {{ hasil_list|length - 5 }} perusahaan lainnya</em>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Step 2: Normalisasi -->
+    <div style="margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+        <h4 style="color: var(--success-green); margin-bottom: 15px;">
+            <i class="fas fa-project-diagram"></i> Step 2: Normalisasi Matriks
+        </h4>
+        <p style="color: var(--text-secondary); margin-bottom: 15px;">
+            Menggunakan metode normalisasi vektor: <strong>r<sub>ij</sub> = x<sub>ij</sub> / √(Σx<sub>ij</sub>²)</strong>
+        </p>
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <span>Normalisasi dilakukan untuk membuat semua kriteria berada dalam skala yang sama (0-1), 
+            sehingga dapat dibandingkan secara adil tanpa bias dari satuan atau skala nilai yang berbeda.</span>
+        </div>
+    </div>
+    
+    <!-- Step 3: Bobot -->
+    <div style="margin-bottom: 30px; padding: 20px; background: #e7f3ff; border-radius: 8px;">
+        <h4 style="color: var(--primary-blue); margin-bottom: 15px;">
+            <i class="fas fa-weight"></i> Step 3: Pembobotan (dari AHP)
+        </h4>
+        <div class="table-responsive">
+            <table style="font-size: 12px;">
+                <thead>
+                    <tr>
+                        <th>Sub-Kriteria</th>
+                        <th>Bobot AHP</th>
+                        <th>Persentase</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub, bobot in ahp_results.bobot_global.items() %}
+                    <tr>
+                        <td>{{ sub }}</td>
+                        <td>{{ '%.8f'|format(bobot) }}</td>
+                        <td>{{ '%.4f'|format(bobot * 100) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Step 4: Matriks Terbobot -->
+    <div style="margin-bottom: 30px; padding: 20px; background: #fff3cd; border-radius: 8px;">
+        <h4 style="color: var(--warning-orange); margin-bottom: 15px;">
+            <i class="fas fa-calculator"></i> Step 4: Matriks Ternormalisasi Terbobot
+        </h4>
+        <p style="color: var(--text-secondary); margin-bottom: 15px;">
+            Setiap elemen matriks ternormalisasi dikalikan dengan bobot: <strong>V = R × W</strong>
+        </p>
+    </div>
+    
+    <!-- Step 5: Solusi Ideal -->
+    <div style="margin-bottom: 30px; padding: 20px; background: #d1e7dd; border-radius: 8px;">
+        <h4 style="color: var(--success-green); margin-bottom: 15px;">
+            <i class="fas fa-star"></i> Step 5: Solusi Ideal Positif & Negatif
+        </h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="background: white; padding: 15px; border-radius: 8px;">
+                <h5 style="color: var(--success-green); margin-bottom: 10px;">
+                    A<sup>+</sup> (Solusi Ideal Positif)
+                </h5>
+                <p style="font-size: 14px; color: var(--text-secondary);">
+                    Nilai maksimum dari setiap kriteria benefit<br>
+                    <strong>A<sup>+</sup> = {max(V<sub>1</sub>), max(V<sub>2</sub>), ..., max(V<sub>n</sub>)}</strong>
+                </p>
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 8px;">
+                <h5 style="color: var(--danger-red); margin-bottom: 10px;">
+                    A<sup>-</sup> (Solusi Ideal Negatif)
+                </h5>
+                <p style="font-size: 14px; color: var(--text-secondary);">
+                    Nilai minimum dari setiap kriteria benefit<br>
+                    <strong>A<sup>-</sup> = {min(V<sub>1</sub>), min(V<sub>2</sub>), ..., min(V<sub>n</sub>)}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Step 6: Jarak -->
+    <div style="margin-bottom: 30px; padding: 20px; background: #d1ecf1; border-radius: 8px;">
+        <h4 style="color: var(--info-cyan); margin-bottom: 15px;">
+            <i class="fas fa-ruler"></i> Step 6: Perhitungan Jarak
+        </h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+            <div style="background: white; padding: 15px; border-radius: 8px;">
+                <h5 style="color: var(--info-cyan);">Jarak ke A<sup>+</sup> (D<sup>+</sup>)</h5>
+                <p style="font-size: 14px; color: var(--text-secondary); margin: 10px 0;">
+                    <strong>D<sub>i</sub><sup>+</sup> = √(Σ(V<sub>ij</sub> - A<sub>j</sub><sup>+</sup>)²)</strong>
+                </p>
+                <p style="font-size: 13px; color: var(--text-secondary);">
+                    Semakin kecil nilai D<sup>+</sup>, semakin dekat dengan solusi ideal positif (semakin baik)
+                </p>
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 8px;">
+                <h5 style="color: var(--danger-red);">Jarak ke A<sup>-</sup> (D<sup>-</sup>)</h5>
+                <p style="font-size: 14px; color: var(--text-secondary); margin: 10px 0;">
+                    <strong>D<sub>i</sub><sup>-</sup> = √(Σ(V<sub>ij</sub> - A<sub>j</sub><sup>-</sup>)²)</strong>
+                </p>
+                <p style="font-size: 13px; color: var(--text-secondary);">
+                    Semakin besar nilai D<sup>-</sup>, semakin jauh dari solusi ideal negatif (semakin baik)
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Step 7: Skor Preferensi -->
+    <div style="padding: 20px; background: linear-gradient(135deg, #198754 0%, #146c43 100%); color: white; border-radius: 8px;">
+        <h4 style="margin-bottom: 15px; color: white;">
+            <i class="fas fa-award"></i> Step 7: Skor Preferensi (Closeness Coefficient)
+        </h4>
+        <p style="margin-bottom: 15px; opacity: 0.95;">
+            <strong>C<sub>i</sub> = D<sub>i</sub><sup>-</sup> / (D<sub>i</sub><sup>+</sup> + D<sub>i</sub><sup>-</sup>)</strong>
+        </p>
+        <p style="font-size: 14px; opacity: 0.9; margin: 0;">
+            Nilai C<sub>i</sub> berkisar antara 0 sampai 1. Semakin mendekati 1, semakin baik alternatif tersebut.
+            Perusahaan dengan nilai C<sub>i</sub> tertinggi merupakan perusahaan dengan kinerja keuangan terbaik.
+        </p>
+    </div>
+</div>
+
+<!-- Interpretasi Hasil -->
+<div class="content-card">
+    <div class="card-header">
+        <i class="fas fa-chart-pie"></i>
+        <h3>Interpretasi Hasil</h3>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+        <div style="padding: 20px; background: #d1e7dd; border-radius: 8px; border-left: 4px solid var(--success-green);">
+            <h4 style="color: var(--success-green); margin-bottom: 10px;">
+                <i class="fas fa-check-circle"></i> Sangat Baik
+            </h4>
+            <p style="font-size: 14px; margin-bottom: 5px;"><strong>Skor: ≥ 0.7</strong></p>
+            <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">
+                Kinerja keuangan sangat baik, risiko kebangkrutan sangat rendah
+            </p>
+        </div>
+        
+        <div style="padding: 20px; background: #d1ecf1; border-radius: 8px; border-left: 4px solid var(--info-cyan);">
+            <h4 style="color: var(--info-cyan); margin-bottom: 10px;">
+                <i class="fas fa-info-circle"></i> Baik
+            </h4>
+            <p style="font-size: 14px; margin-bottom: 5px;"><strong>Skor: 0.5 - 0.7</strong></p>
+            <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">
+                Kinerja keuangan baik, risiko kebangkrutan rendah
+            </p>
+        </div>
+        
+        <div style="padding: 20px; background: #fff3cd; border-radius: 8px; border-left: 4px solid var(--warning-orange);">
+            <h4 style="color: var(--warning-orange); margin-bottom: 10px;">
+                <i class="fas fa-exclamation-triangle"></i> Cukup
+            </h4>
+            <p style="font-size: 14px; margin-bottom: 5px;"><strong>Skor: 0.3 - 0.5</strong></p>
+            <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">
+                Kinerja keuangan cukup, perlu pengawasan dan perbaikan
+            </p>
+        </div>
+        
+        <div style="padding: 20px; background: #f8d7da; border-radius: 8px; border-left: 4px solid var(--danger-red);">
+            <h4 style="color: var(--danger-red); margin-bottom: 10px;">
+                <i class="fas fa-times-circle"></i> Perlu Perhatian
+            </h4>
+            <p style="font-size: 14px; margin-bottom: 5px;"><strong>Skor: &lt; 0.3</strong></p>
+            <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">
+                Kinerja keuangan lemah, risiko kebangkrutan tinggi, perlu tindakan segera
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation -->
+<div style="display: flex; justify-content: space-between; margin-top: 30px;">
+    <a href="{{ url_for('proses_ahp') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i>
+        Kembali ke Proses AHP
+    </a>
+    
+    <a href="{{ url_for('hasil_akhir') }}" class="btn btn-primary" style="font-size: 16px; padding: 15px 40px;">
+        <i class="fas fa-trophy"></i>
+        Lihat Hasil Akhir Lengkap
+    </a>
+</div>
+
+<style>
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+</style>
+{% endblock %}
