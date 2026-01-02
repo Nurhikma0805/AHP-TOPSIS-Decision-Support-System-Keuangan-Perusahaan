@@ -6,7 +6,7 @@ Sistem pengambilan keputusan berbasis web yang menggunakan metode AHP dan TOPSIS
 
 ## 📖 Tentang Project
 
-Project ini dikembangkan sebagai bagian dari program PKL di PT Pos Indonesia. Sistem ini membantu manajemen dalam menilai kinerja keuangan perusahaan secara objektif menggunakan metode Decision Support System.
+Sistem Decision Support System (DSS) berbasis web untuk penilaian kinerja keuangan perusahaan manufaktur menggunakan kombinasi metode AHP (Analytical Hierarchy Process) dan TOPSIS (Technique for Order of Preference by Similarity to Ideal Solution).1
 
 ---
 
