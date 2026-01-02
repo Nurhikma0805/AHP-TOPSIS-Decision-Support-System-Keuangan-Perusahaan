@@ -6,7 +6,7 @@ Sistem pengambilan keputusan berbasis web yang menggunakan metode AHP dan TOPSIS
 
 ## 📖 Tentang Project
 
-Sistem Decision Support System (DSS) berbasis web untuk penilaian kinerja keuangan perusahaan manufaktur menggunakan kombinasi metode AHP (Analytical Hierarchy Process) dan TOPSIS (Technique for Order of Preference by Similarity to Ideal Solution).1
+Sistem Decision Support System (DSS) berbasis web untuk penilaian kinerja keuangan perusahaan manufaktur menggunakan kombinasi metode AHP (Analytical Hierarchy Process) dan TOPSIS (Technique for Order of Preference by Similarity to Ideal Solution).
 
 ---
 
@@ -15,7 +15,6 @@ Sistem Decision Support System (DSS) berbasis web untuk penilaian kinerja keuang
 - Input dan perhitungan bobot kriteria dengan metode AHP
 - Pemeringkatan perusahaan menggunakan metode TOPSIS  
 - Upload data perusahaan melalui file Excel
-- 
 ---
 
 ## 📊 Kriteria Penilaian
