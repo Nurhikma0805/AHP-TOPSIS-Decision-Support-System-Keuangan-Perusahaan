@@ -15,8 +15,7 @@ Project ini dikembangkan sebagai bagian dari program PKL di PT Pos Indonesia. Si
 - Input dan perhitungan bobot kriteria dengan metode AHP
 - Pemeringkatan perusahaan menggunakan metode TOPSIS  
 - Upload data perusahaan melalui file Excel
-- Visualisasi hasil analisis dalam bentuk tabel dan grafik
-
+- 
 ---
 
 ## 📊 Kriteria Penilaian
@@ -86,23 +85,7 @@ Buka browser dan akses: `http://localhost:5000`
 - Upload file Excel yang berisi data kinerja keuangan perusahaan untuk semua sub-kriteria
 
 **4. Hasil TOPSIS**
-- Analisis hasil pemeringkatan dengan visualisasi interaktif dan ekspor data
-
----
-
-## 📂 Struktur Folder
-
-```
-ahp-topsis-system/
-├── contoh/              # File contoh data Excel
-├── statis/              # File CSS, JS, images
-├── templat/             # File HTML templates
-├── ahp_topsis.py        # Logic AHP-TOPSIS
-├── aplikasi.py          # Flask application
-├── models.py            # Database models
-├── requirements.txt     # Python dependencies
-└── topsis_murni.py      # TOPSIS calculation
-```
+- Analisis hasil pemeringkatan 
 
 ---
 
@@ -116,29 +99,3 @@ ahp-topsis-system/
 
 ---
 
-## 📄 Catatan
-
-**Pastikan file Excel Anda memiliki:**
-- Kolom **PERUSAHAAN** dan semua kolom sub-kriteria sesuai dengan format yang ditentukan
-- Data harus lengkap untuk semua sub-kriteria
-
-**Contoh format Excel:**
-
-| PERUSAHAAN | Profitabilitas | Likuiditas | Solvabilitas | Efisiensi | ... |
-|------------|----------------|------------|--------------|-----------|-----|
-| PT ABC     | 15.2           | 2.3        | 1.5          | 85.5      | ... |
-| PT XYZ     | 12.8           | 1.9        | 1.8          | 78.2      | ... |
-
----
-
-## 👨‍💻 Developer
-
-Dikembangkan oleh: **[Nama Kamu]**  
-Program PKL - PT Pos Indonesia  
-Tahun: 2026
-
----
-
-## 📜 Lisensi
-
-MIT License
